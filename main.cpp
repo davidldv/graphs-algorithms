@@ -308,17 +308,64 @@ void imprimirMSTKruskal(const std::vector<std::pair<int, int>>& mst) {
 // Función para crear un grafo de ejemplo
 Grafo crearGrafoDeEjemplo() {
     Grafo g = crearGrafo();
-    g = insertarVertice(g, 1);
-    g = insertarVertice(g, 2);
-    g = insertarVertice(g, 3);
-    g = insertarVertice(g, 4);
-    g = insertarVertice(g, 5);
+    // Insertando vértices (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    for (int i = 1; i <= 10; i++) {
+        g = insertarVertice(g, i);
+    }
 
-    g = insertarArco(g, 1, 2, 2);
-    g = insertarArco(g, 1, 3, 4);
-    g = insertarArco(g, 2, 4, 7);
-    g = insertarArco(g, 3, 5, 3);
-    g = insertarArco(g, 4, 5, 1);
+    // Insertando arcos con sus respectivos costos
+
+    // Arcos desde (1)
+    g = insertarArco(g, 1, 2, 3);   // 1 -> 2, costo 3
+    g = insertarArco(g, 1, 3, 2);   // 1 -> 3, costo 2
+    g = insertarArco(g, 1, 4, 4);   // 1 -> 4, costo 4
+
+    // Arcos desde (2)
+    g = insertarArco(g, 2, 1, 3);   // 2 -> 1, costo 3
+    g = insertarArco(g, 2, 5, 2);   // 2 -> 5, costo 2
+    
+    // Arcos desde (3)
+    g = insertarArco(g, 3, 1, 2);   // 3 -> 1, costo 2
+    g = insertarArco(g, 3, 5, 3);   // 3 -> 5, costo 3
+    g = insertarArco(g, 3, 6, 5);   // 3 -> 6, costo 5
+    g = insertarArco(g, 3, 7, 4);   // 3 -> 7, costo 4
+
+    // Arcos desde (4)
+    g = insertarArco(g, 4, 1, 4);   // 4 -> 1, costo 4
+    g = insertarArco(g, 4, 7, 3);   // 4 -> 7, costo 3
+
+    // Arcos desde (5)
+    g = insertarArco(g, 5, 2, 2);   // 5 -> 2, costo 2
+    g = insertarArco(g, 5, 3, 3);   // 5 -> 3, costo 3
+    g = insertarArco(g, 5, 6, 1);   // 5 -> 6, costo 1
+    g = insertarArco(g, 5, 8, 3);   // 5 -> 8, costo 3
+
+    // Arcos desde (6)
+    g = insertarArco(g, 6, 3, 5);   // 6 -> 3, costo 5
+    g = insertarArco(g, 6, 5, 1);   // 6 -> 5, costo 1
+    g = insertarArco(g, 6, 7, 1);   // 6 -> 7, costo 1
+    g = insertarArco(g, 6, 10, 4);   // 6 -> 10, costo 4
+
+    // Arcos desde (7)
+    g = insertarArco(g, 7, 3, 4);   // 7 -> 3, costo 4
+    g = insertarArco(g, 7, 4, 3);   // 7 -> 4, costo 3
+    g = insertarArco(g, 7, 6, 1);   // 7 -> 6, costo 1
+    g = insertarArco(g, 7, 9, 2);   // 7 -> 9, costo 2
+
+    // Arcos desde (8)
+    g = insertarArco(g, 8, 5, 3);   // 8 -> 5, costo 3
+    g = insertarArco(g, 8, 9, 1);   // 8 -> 9, costo 1 
+    g = insertarArco(g, 8, 10, 2);   // 8 -> 10, costo 2
+
+    // Arcos desde (9)
+    g = insertarArco(g, 9, 7, 2);   // 9 -> 7, costo 2
+    g = insertarArco(g, 9, 8, 1);   // 9 -> 8, costo 1
+    g = insertarArco(g, 9, 10, 2);   // 9 -> 10, costo 2
+
+    // Arcos desde (10)
+    g = insertarArco(g, 10, 6, 4);   // 10 -> 6, costo 4
+    g = insertarArco(g, 10, 8, 2);   // 10 -> 8, costo 2
+    g = insertarArco(g, 10, 9, 2);   // 10 -> 9, costo 2
 
     return g;
 }
