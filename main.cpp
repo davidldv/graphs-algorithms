@@ -2,11 +2,11 @@
 #include <queue>
 #include <stack>
 #include <vector>
-#include <limits.h>
+#include <limits.h> 
 #include <algorithm>
 #include "TADgrafo.h"
 
-// Función BFS que devuelve el recorrido en una lista de vértices
+// Funcion BFS que devuelve el recorrido en una lista de vertices
 ListaVertice BFS(Grafo g, int start) {
     g = desmarcarGrafo(g);
     std::queue<int> cola;
@@ -38,7 +38,7 @@ ListaVertice BFS(Grafo g, int start) {
     return recorrido;
 }
 
-// Función DFS que devuelve el recorrido en una lista de vértices
+// Funcion DFS que devuelve el recorrido en una lista de vértices
 ListaVertice DFS(Grafo g, int start) {
     g = desmarcarGrafo(g);
     std::stack<int> pila;
@@ -70,15 +70,17 @@ ListaVertice DFS(Grafo g, int start) {
     return recorrido;
 }
 
-// Función Dijkstra para calcular el camino mínimo
-std::vector<int> Dijkstra(Grafo g, int start) {
+// Funcion Dijkstra para calcular el camino mínimo
+std::vector<int> Dijkstra(Grafo g, int start, int end) {
     int numVertices = cantidadVertices(g);
     std::vector<int> distancia(numVertices + 1, INT_MAX);
+    std::vector<int> predecesor(numVertices + 1, -1);
     std::vector<bool> visitado(numVertices + 1, false);
 
     distancia[start] = 0;
+
     for (int i = 1; i <= numVertices; ++i) {
-        // Encuentra el vértice con menor distancia que no ha sido visitado
+        // Encuentra el vértice con la menor distancia que no ha sido visitado
         int minDist = INT_MAX, u = -1;
         for (int j = 1; j <= numVertices; ++j) {
             if (!visitado[j] && distancia[j] < minDist) {
@@ -97,15 +99,29 @@ std::vector<int> Dijkstra(Grafo g, int start) {
             int peso = pesoArco(g, u, v);
             if (!visitado[v] && distancia[u] + peso < distancia[v]) {
                 distancia[v] = distancia[u] + peso;
+                predecesor[v] = u;
             }
             sucesoresLista = sucesoresLista->sig;
         }
     }
 
-    return distancia;
+    // Construir el camino más corto desde start hasta end
+    std::vector<int> camino;
+    for (int at = end; at != -1; at = predecesor[at]) {
+        camino.push_back(at);
+    }
+    std::reverse(camino.begin(), camino.end());
+
+    // Verificar si el destino es accesible
+    if (camino.size() == 1 && camino[0] != start) {
+        camino.clear(); // El destino no es accesible desde el inicio
+    }
+
+    return camino;
 }
 
-// Función para imprimir un recorrido
+
+// Funcion para imprimir un recorrido
 void imprimirRecorrido(ListaVertice recorrido) {
     while (recorrido != nullptr) {
         std::cout << recorrido->dato << " ";
@@ -114,7 +130,7 @@ void imprimirRecorrido(ListaVertice recorrido) {
     std::cout << std::endl;
 }
 
-// Función para imprimir distancias de Dijkstra
+// Funcion para imprimir distancias de Dijkstra
 void imprimirDistancias(const std::vector<int>& distancias) {
     for (size_t i = 1; i < distancias.size(); ++i) {
         if (distancias[i] == INT_MAX) {
@@ -126,9 +142,11 @@ void imprimirDistancias(const std::vector<int>& distancias) {
 }
 
 // Funcion Bellman-Ford para calcular el camino minimo
-std::vector<int> BellmanFord(Grafo g, int start) {
+std::pair<std::vector<int>, std::vector<int>> BellmanFord(Grafo g, int start, int end) {
     int numVertices = cantidadVertices(g);
     std::vector<int> distancia(numVertices + 1, INT_MAX);
+    std::vector<int> predecesor(numVertices + 1, -1); // Para reconstruir el camino
+
     distancia[start] = 0;
 
     // Relajar los arcos numVertices - 1 veces
@@ -141,6 +159,7 @@ std::vector<int> BellmanFord(Grafo g, int start) {
 
             if (distancia[u] != INT_MAX && distancia[u] + peso < distancia[v]) {
                 distancia[v] = distancia[u] + peso;
+                predecesor[v] = u; // Registrar de dónde viene
             }
             actual = actual->sig;
         }
@@ -155,14 +174,25 @@ std::vector<int> BellmanFord(Grafo g, int start) {
 
         if (distancia[u] != INT_MAX && distancia[u] + peso < distancia[v]) {
             std::cerr << "El grafo contiene un ciclo negativo." << std::endl;
-            return {}; // Retorna un vector vacio en caso de ciclo negativo
+            return {{}, {}}; // Retorna vectores vacíos en caso de ciclo negativo
         }
         actual = actual->sig;
     }
 
-    return distancia;
+    // Construir el camino hacia el destino
+    std::vector<int> camino;
+    if (distancia[end] != INT_MAX) {
+        for (int v = end; v != -1; v = predecesor[v]) {
+            camino.push_back(v);
+        }
+        std::reverse(camino.begin(), camino.end());
+    }
+
+    return {distancia, camino};
 }
 
+
+// Funcion Prim para calcular el arbol de expansion minima (MST)
 // Funcion Prim para calcular el arbol de expansion minima (MST)
 std::vector<std::pair<int, int>> Prim(Grafo g, int start) {
     int numVertices = cantidadVertices(g);
@@ -170,32 +200,34 @@ std::vector<std::pair<int, int>> Prim(Grafo g, int start) {
     std::vector<int> parent(numVertices + 1, -1);  // Para guardar el arbol
     std::vector<bool> inMST(numVertices + 1, false); // Para saber si el vertice ya esta en el MST
 
-    key[start] = 0;
+    key[start] = 0; // La clave del vértice inicial es 0
 
-    for (int i = 1; i <= numVertices; ++i) {
-        // Encuentra el vertice con la menor clave que no esta en el MST
+    for (int count = 1; count <= numVertices; ++count) {
+        // Encuentra el vértice con la clave más pequeña que no está en el MST
         int minKey = INT_MAX, u = -1;
-        for (int j = 1; j <= numVertices; ++j) {
-            if (!inMST[j] && key[j] < minKey) {
-                minKey = key[j];
-                u = j;
+        for (int v = 1; v <= numVertices; ++v) {
+            if (!inMST[v] && key[v] < minKey) {
+                minKey = key[v];
+                u = v;
             }
         }
 
-        if (u == -1) break; // No quedan vertices conectados
+        if (u == -1) break; // Si no hay vértices conectados restantes
 
-        inMST[u] = true;
+        inMST[u] = true; // Agregar el vértice al MST
 
-        // Actualiza los valores de clave y padre de los vertices adyacentes
+        // Actualiza las claves y padres de los sucesores
         ListaVertice sucesoresLista = sucesores(g, u);
         while (sucesoresLista != nullptr) {
             int v = sucesoresLista->dato;
             int peso = pesoArco(g, u, v);
 
+            // Si el vértice no está en el MST y el peso del arco es menor que la clave actual
             if (!inMST[v] && peso < key[v]) {
                 key[v] = peso;
                 parent[v] = u;
             }
+
             sucesoresLista = sucesoresLista->sig;
         }
     }
@@ -211,6 +243,7 @@ std::vector<std::pair<int, int>> Prim(Grafo g, int start) {
     return mst;
 }
 
+
 struct Arco {
   int origen, destino, peso;
 };
@@ -224,14 +257,14 @@ struct Conjunto {
         padre.resize(n + 1);
         rango.resize(n + 1, 0);
         for (int i = 1; i <= n; ++i) {
-            padre[i] = i; // Cada vértice es su propio padre al principio
+            padre[i] = i; // Cada vertice es su propio padre al principio
         }
     }
 
     // Encuentra el representante de un conjunto
     int encontrar(int x) {
         if (padre[x] != x) {
-            padre[x] = encontrar(padre[x]); // Compresión de caminos
+            padre[x] = encontrar(padre[x]); // Compresion de caminos
         }
         return padre[x];
     }
@@ -242,7 +275,7 @@ struct Conjunto {
         int raizY = encontrar(y);
 
         if (raizX != raizY) {
-            // Unión por rango
+            // Union por rango
             if (rango[raizX] > rango[raizY]) {
                 padre[raizY] = raizX;
             } else if (rango[raizX] < rango[raizY]) {
@@ -279,7 +312,7 @@ std::vector<std::pair<int, int>> Kruskal(Grafo g) {
         int u = arco.origen;
         int v = arco.destino;
 
-        // Si los vértices u y v no están en el mismo conjunto, unirlos
+        // Si los vertices u y v no están en el mismo conjunto, unirlos
         if (conjunto.encontrar(u) != conjunto.encontrar(v)) {
             conjunto.unir(u, v);
             mst.push_back({u, v});
@@ -305,10 +338,10 @@ void imprimirMSTKruskal(const std::vector<std::pair<int, int>>& mst) {
 }
 
 
-// Función para crear un grafo de ejemplo
+// Funcion para crear un grafo de ejemplo
 Grafo crearGrafoDeEjemplo() {
     Grafo g = crearGrafo();
-    // Insertando vértices (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    // Insertando vertices (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     for (int i = 1; i <= 10; i++) {
         g = insertarVertice(g, i);
     }
@@ -374,7 +407,7 @@ int main() {
     // Crear un grafo de ejemplo
     Grafo g = crearGrafoDeEjemplo();
 
-    // Mostrar lista de vértices y arcos
+    // Mostrar lista de vertices y arcos
     std::cout << "Lista de vertices:" << std::endl;
     imprimirListaV(g);
     std::cout << "\n\nLista de arcos:" << std::endl;
@@ -408,27 +441,58 @@ int main() {
         switch (opcion) {
             case 1: {
                 ListaVertice recorrido = BFS(g, inicio);
-                std::cout << "Recorrido BFS: ";
+                std::cout << "\nRecorrido BFS: ";
                 imprimirRecorrido(recorrido);
                 break;
             }
             case 2: {
                 ListaVertice recorrido = DFS(g, inicio);
-                std::cout << "Recorrido DFS: ";
+                std::cout << "\nRecorrido DFS: ";
                 imprimirRecorrido(recorrido);
                 break;
             }
             case 3: {
-                std::vector<int> distancias = Dijkstra(g, inicio);
-                std::cout << "Distancias minimas desde el vertice " << inicio << ":" << std::endl;
-                imprimirDistancias(distancias);
+                int destino;
+                std::cout << "Ingrese el vertice destino: ";
+                std::cin >> destino;
+
+                std::vector<int> camino = Dijkstra(g, inicio, destino);
+                
+                if (!camino.empty()) {
+                    std::cout << "\nCamino más corto desde " << inicio << " hasta " << destino << ": ";
+                    for (int vertice : camino) {
+                        std::cout << vertice << " ";
+                    }
+                    std::cout << std::endl;
+                } else {
+                    std::cout << "\nNo hay camino desde " << inicio << " hasta " << destino << "." << std::endl;
+                }
                 break;
             }
             case 4: {
-                std::vector<int> distancias = BellmanFord(g, inicio);
-                if (!distancias.empty()) {
-                    std::cout << "Distancias minimas desde el vertice " << inicio << ":" << std::endl;
+                int destino;
+                std::cout << "Ingrese el vertice destino: ";
+                std::cin >> destino;
+
+                auto resultado = BellmanFord(g, inicio, destino);
+                const auto& distancias = resultado.first;
+                const auto& camino = resultado.second;
+
+                if (distancias.empty()) {
+                    std::cout << "\nNo se pudo calcular debido a un ciclo negativo." << std::endl;
+                } else {
+                    std::cout << "\nDistancias desde el vertice " << inicio << ":" << std::endl;
                     imprimirDistancias(distancias);
+
+                    if (!camino.empty()) {
+                        std::cout << "\nCamino mas corto desde " << inicio << " hasta " << destino << ": ";
+                        for (int vertice : camino) {
+                            std::cout << vertice << " ";
+                        }
+                        std::cout << std::endl;
+                    } else {
+                        std::cout << "\nNo hay camino hacia el vertice " << destino << "." << std::endl;
+                    }
                 }
                 break;
             }
