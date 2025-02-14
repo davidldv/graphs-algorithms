@@ -1,14 +1,12 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "limits.h"
+#include <cstdio>
+#include <cstring>
+#include <climits>
 
 typedef struct NodoV
   {  int dato;
      struct NodoV *sig;
      int marcado;
         } *ListaVertice;
-
 
 typedef struct NodoA
   {  int origen;
@@ -17,24 +15,21 @@ typedef struct NodoA
      struct NodoA *sig;
         } *ListaArco;
 
+typedef struct nodoGrafo {
+  ListaVertice v;
+  ListaArco a;
+} Grafo;
 
-typedef struct nodoGrafo{
-        ListaVertice v;
-        ListaArco a;
-        } Grafo;
+inline Grafo crearGrafo() {
+  Grafo grafo;
+  grafo.v = nullptr;
+  grafo.v = nullptr;
+  return grafo;
+}
 
-
-Grafo crearGrafo()
-  {
-      Grafo g;
-      g.v=NULL;
-      g.a=NULL;
-      return g;
-  }
-      
-int cantidadVertices(Grafo g) {
+inline int cantidadVertices(const Grafo grafo) {
     int contador = 0;
-    ListaVertice actual = g.v;
+    ListaVertice actual = grafo.v;
     while (actual != nullptr) {
         contador++;
         actual = actual->sig;
@@ -64,8 +59,6 @@ Grafo insertarVertice (Grafo g, int x)
    return g;
 }
 
-
-
 void imprimirListaV(Grafo g)
 {
      ListaVertice k=g.v;
@@ -75,7 +68,6 @@ void imprimirListaV(Grafo g)
            k=k->sig;
            }
  }
-
 
 // Funcion para adicionar un arco a la lista de arcos
 Grafo insertarArco (Grafo g, int x, int y, int z)
@@ -88,62 +80,55 @@ Grafo insertarArco (Grafo g, int x, int y, int z)
    g.a=nuevo;
    return g;
 }
-        
-        
+
 // imprime la lista de arcos
 void imprimirListaA(Grafo g)
 {
-     ListaArco k=g.a;
-     while (k!=NULL)
+     ListaArco k = g.a;
+     while (k != NULL)
      {
            printf(" \n%d    %d     %d",k->origen, k->destino, k->costo);
-           k=k->sig;
+           k = k->sig;
            }
  }
-
-
       
-ListaVertice verticesGrafo (Grafo g)
+ListaVertice verticesGrafo(Grafo g)
  {
      return g.v;
  }
-    
 
-ListaArco arcosGrafo (Grafo g)
+ListaArco arcosGrafo(Grafo g)
  {
      return g.a;
  }
-    
 
-Grafo cambiarListaV (Grafo g, ListaVertice k)
+Grafo cambiarListaV(Grafo g, ListaVertice k)
 {
    g.v = k;
    return g;
 }
 
-
-Grafo cambiarListaA (Grafo g, ListaArco k)
+Grafo cambiarListaA(Grafo g, ListaArco k)
 {
    g.a = k;
    return g;
 }
 
-
-int vacioGrafo (Grafo g)
+int vacioGrafo(Grafo g)
        // Devuelve verdadero si el grafo es vacio
     {
-      if (g.v==NULL)
+      if (g.v == NULL)
          return 1;
       else
          return 0;
     }
 
 // elimina un vertice del grafo
-Grafo eliminarVertice (Grafo g, int x)
+Grafo eliminarVertice(Grafo g, int x)
 {
-    ListaVertice k=g.v, p;
+    ListaVertice k = g.v, p;
 
-    if (g.v!=NULL)
+    if (g.v != NULL)
         {
            if (g.v->dato == x)
              {
@@ -154,9 +139,9 @@ Grafo eliminarVertice (Grafo g, int x)
              {
                while ((k->sig != NULL) && (k->sig->dato != x))
                   k=k->sig;
-               if (k->sig!=NULL)
+               if (k->sig != NULL)
                   {
-                     p=k->sig;
+                     p = k->sig;
                      k->sig=p->sig;
                      free(p);
                   }
@@ -166,11 +151,11 @@ Grafo eliminarVertice (Grafo g, int x)
  }
 
 // Elimina un arco que parta del origen x al destino y
-Grafo eliminarArco (Grafo g, int x, int y)
+Grafo eliminarArco(Grafo g, int x, int y)
 {
-    ListaArco k=g.a, p;
+    ListaArco k = g.a, p;
 
-    if (g.a!=NULL)
+    if (g.a != NULL)
         {
            if ((g.a->origen == x) && (g.a->destino == y))
              {
@@ -181,44 +166,42 @@ Grafo eliminarArco (Grafo g, int x, int y)
              {
                while ((k->sig != NULL) && !((k->sig->origen == x) && (k->sig->destino == y)))
                   k=k->sig;
-               if (k->sig!=NULL)
+               if (k->sig != NULL)
                   {
-                     p=k->sig;
+                     p = k->sig;
                      printf("\n el arco a borrar es %d   %d",p->origen,p->destino);
-                     k->sig=p->sig;
+                     k->sig = p->sig;
                      free(p);
                   }
              }
         }
      return g;
  }
- 
- 
- // retorna el costo del arco desde x hasta y
- int costoArco (Grafo g, int x, int y)
+
+// retorna el costo del arco desde x hasta y
+int costoArco(Grafo g, int x, int y)
   {
-    ListaArco k=g.a;
+    ListaArco k = g.a;
 
     while (k != NULL)
       {
        if ((k->origen == x) && (k->destino == y))
           return k->costo;
-       k=k->sig;
+       k = k->sig;
       }
     return -1;       // no encontro el arco
   }
 
-
 // retorna el numero de vertices asociados al grafo
 int ordenGrafo(Grafo g)
   {
-    int orden=0;
-    ListaVertice k=g.v;
+    int orden = 0;
+    ListaVertice k = g.v;
 
     while (k != NULL)
       {
         orden++;
-        k=k->sig;
+        k = k->sig;
       }
     return orden;
   }
@@ -226,34 +209,33 @@ int ordenGrafo(Grafo g)
 
 
 // marca un vertice de grafo
-Grafo marcarVertice (Grafo g, int x)
+Grafo marcarVertice(Grafo g, int x)
 {
-    ListaVertice k=g.v;
+    ListaVertice k = g.v;
 
-    while (k!=NULL)
+    while (k != NULL)
         {
            if (k->dato == x)
              {
               k->marcado = 1;
-              k=NULL;
+              k = NULL;
              }
            else
-             k=k->sig;
+             k = k->sig;
         }
      return g;
  }
 
-
 // desmarca un vertice de grafo
-Grafo desmarcarVertice (Grafo g, int x)
+Grafo desmarcarVertice(Grafo g, int x)
 {
-    ListaVertice k=g.v;
-    while (k!=NULL)
+    ListaVertice k = g.v;
+    while (k != NULL)
         {
            if (k->dato == x)
              {
               k->marcado = 0;
-              k=NULL;
+              k = NULL;
              }
            else
              k=k->sig;
@@ -262,24 +244,23 @@ Grafo desmarcarVertice (Grafo g, int x)
  }
 
 // desmarca todos los vertices del grafo
-Grafo desmarcarGrafo (Grafo g)
+Grafo desmarcarGrafo(Grafo g)
 {
-    ListaVertice k=g.v;
+    ListaVertice k = g.v;
 
-    while (k!=NULL)
+    while (k != NULL)
         {
            k->marcado = 0;
-           k=k->sig;
+           k = k->sig;
         }
      return g;
  }
 
-
 //Indica si un vertice esta marcado
-int marcadoVertice (Grafo g, int x)
+int marcadoVertice(Grafo g, int x)
 {
-    ListaVertice k=g.v;
-    while (k!=NULL)
+    ListaVertice k = g.v;
+    while (k != NULL)
         {
            if (k->dato == x)
              {  
@@ -289,7 +270,7 @@ int marcadoVertice (Grafo g, int x)
                   return 1;
              }
            else
-             k=k->sig;
+             k = k->sig;
         }
      return 0;
  }    
@@ -298,8 +279,8 @@ int marcadoVertice (Grafo g, int x)
   
 ListaVertice sucesores(Grafo g, int x)
 {
-   ListaArco k=g.a;
-   ListaVertice ver=NULL, nuevo;
+   ListaArco k = g.a;
+   ListaVertice ver = NULL, nuevo;
 
     while (k != NULL)
       {
@@ -312,7 +293,7 @@ ListaVertice sucesores(Grafo g, int x)
             ver=nuevo;
             printf("\nsucesor %d  ",nuevo->dato);
           }
-       k=k->sig;
+       k = k->sig;
       }
    return ver;
 }

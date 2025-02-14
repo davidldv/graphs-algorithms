@@ -2,7 +2,7 @@
 #include <queue>
 #include <stack>
 #include <vector>
-#include <limits.h> 
+#include <climits>
 #include <algorithm>
 #include "TADgrafo.h"
 
@@ -10,7 +10,7 @@
 ListaVertice BFS(Grafo g, int start) {
     g = desmarcarGrafo(g);
     std::queue<int> cola;
-    ListaVertice recorrido = nullptr;
+    std::vector<int> recorrido; // Usar vector para mantener el orden
 
     g = marcarVertice(g, start);
     cola.push(start);
@@ -19,11 +19,7 @@ ListaVertice BFS(Grafo g, int start) {
         int actual = cola.front();
         cola.pop();
 
-        ListaVertice nuevo = (ListaVertice)malloc(sizeof(struct NodoV));
-        nuevo->dato = actual;
-        nuevo->marcado = 0;
-        nuevo->sig = recorrido;
-        recorrido = nuevo;
+        recorrido.push_back(actual); // Agregar al vector
 
         ListaVertice sucesoresLista = sucesores(g, actual);
         while (sucesoresLista != nullptr) {
@@ -35,7 +31,27 @@ ListaVertice BFS(Grafo g, int start) {
         }
     }
 
-    return recorrido;
+    // Convertir vector a lista enlazada ordenada
+    ListaVertice listaRecorrido = nullptr;
+    for (int vertice : recorrido) {
+        ListaVertice nuevo = (ListaVertice)malloc(sizeof(struct NodoV));
+        nuevo->dato = vertice;
+        nuevo->marcado = 0;
+        nuevo->sig = listaRecorrido;
+        listaRecorrido = nuevo;
+    }
+
+    // Invertir la lista enlazada para que quede en el orden del recorrido BFS
+    ListaVertice listaOrdenada = nullptr;
+    while (listaRecorrido != nullptr) {
+        ListaVertice temp = listaRecorrido;
+        listaRecorrido = listaRecorrido->sig;
+
+        temp->sig = listaOrdenada;
+        listaOrdenada = temp;
+    }
+
+    return listaOrdenada;
 }
 
 // Funcion DFS que devuelve el recorrido en una lista de vértices
@@ -120,7 +136,6 @@ std::vector<int> Dijkstra(Grafo g, int start, int end) {
     return camino;
 }
 
-
 // Funcion para imprimir un recorrido
 void imprimirRecorrido(ListaVertice recorrido) {
     while (recorrido != nullptr) {
@@ -191,8 +206,6 @@ std::pair<std::vector<int>, std::vector<int>> BellmanFord(Grafo g, int start, in
     return {distancia, camino};
 }
 
-
-// Funcion Prim para calcular el arbol de expansion minima (MST)
 // Funcion Prim para calcular el arbol de expansion minima (MST)
 std::vector<std::pair<int, int>> Prim(Grafo g, int start) {
     int numVertices = cantidadVertices(g);
@@ -242,7 +255,6 @@ std::vector<std::pair<int, int>> Prim(Grafo g, int start) {
 
     return mst;
 }
-
 
 struct Arco {
   int origen, destino, peso;
@@ -459,7 +471,7 @@ int main() {
                 std::vector<int> camino = Dijkstra(g, inicio, destino);
                 
                 if (!camino.empty()) {
-                    std::cout << "\nCamino más corto desde " << inicio << " hasta " << destino << ": ";
+                    std::cout << "\nCamino mas corto desde " << inicio << " hasta " << destino << ": ";
                     for (int vertice : camino) {
                         std::cout << vertice << " ";
                     }
